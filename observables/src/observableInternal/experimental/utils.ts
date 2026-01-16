@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, IReader } from '../base.js';
-import { BugIndicatingError, DisposableStore } from '../commonFacade/deps.js';
-import { DebugOwner, getDebugName, DebugNameData } from '../debugName.js';
-import { observableFromEvent } from '../observables/observableFromEvent.js';
-import { autorunOpts } from '../reactions/autorun.js';
-import { derivedObservableWithCache } from '../utils/utils.js';
+import { IObservable, IReader } from '../base';
+import { BugIndicatingError, DisposableStore } from '../commonFacade/deps';
+import { DebugOwner, getDebugName, DebugNameData } from '../debugName';
+import { observableFromEvent } from '../observables/observableFromEvent';
+import { autorunOpts } from '../reactions/autorun';
+import { derivedObservableWithCache } from '../utils/utils';
 
 /**
  * Creates an observable that has the latest changed value of the given observables.

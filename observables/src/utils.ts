@@ -17,29 +17,31 @@ type ObservableArrayToChangesData<T extends Record<string, IObservableWithChange
 export function autorunWithChanges<T extends Record<string, IObservableWithChange<any, any>>>(owner: object, observables: T, handler: (data: ObservableArrayToChangesData<T>) => void): IDisposable {
 	const observableToKey = new Map(Object.entries(observables).map(([key, value]) => [value, key] as const));
 
-	const previousValues = new Map(Object.keys(observables).map(key => [key, undefined]));
+	const previousValues = new Map<string, unknown>(Object.keys(observables).map(key => [key, undefined]));
 
 	return autorunHandleChanges({
 		owner,
-		createEmptyChangeSummary: () => ({}) as ObservableArrayToChangesData<T>,
-		handleChange: (ctx, changeSummary) => {
-			const key = observableToKey.get(ctx.changedObservable)!;
+		changeTracker: {
+			createChangeSummary: () => ({}) as ObservableArrayToChangesData<T>,
+			handleChange: (ctx, changeSummary: ObservableArrayToChangesData<T>) => {
+				const key = observableToKey.get(ctx.changedObservable)!;
 
-			if (changeSummary[key] === undefined) {
-				(changeSummary as any)[key] = { value: undefined!, changes: [] };
+				if ((changeSummary as Record<string, unknown>)[key] === undefined) {
+					(changeSummary as Record<string, unknown>)[key] = { value: undefined!, changes: [] };
+				}
+				(changeSummary[key as keyof T] as { changes: unknown[] }).changes.push(ctx.change);
+				return true;
 			}
-			changeSummary[key].changes.push(ctx.change);
-			return true;
 		}
 	}, (reader, data) => {
 		for (const [key, value] of Object.entries(observables)) {
 			const v = value.read(reader);
 
-			if (data[key] === undefined) {
-				(data as any)[key] = { value: v, changes: [], previous: previousValues.get(key) };
+			if ((data as Record<string, unknown>)[key] === undefined) {
+				(data as Record<string, unknown>)[key] = { value: v, changes: [], previous: previousValues.get(key) };
 			}
-			data[key].value = v;
-			data[key].previous = previousValues.get(key) === undefined ? undefined : previousValues.get(key);
+			(data[key as keyof T] as { value: unknown }).value = v;
+			(data[key as keyof T] as { previous: unknown }).previous = previousValues.get(key) === undefined ? undefined : previousValues.get(key);
 			previousValues.set(key, v);
 		}
 		handler(data);

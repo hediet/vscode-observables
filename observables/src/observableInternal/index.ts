@@ -5,42 +5,42 @@
 
 // This is a facade for the observable implementation. Only import from here!
 
-export { observableValueOpts } from './observables/observableValueOpts.js';
-export { autorun, autorunDelta, autorunHandleChanges, autorunOpts, autorunWithStore, autorunWithStoreHandleChanges, autorunIterableDelta, autorunSelfDisposable } from './reactions/autorun.js';
-export { type IObservable, type IObservableWithChange, type IObserver, type IReader, type ISettable, type ISettableObservable, type ITransaction } from './base.js';
-export { disposableObservableValue } from './observables/observableValue.js';
-export { derived, derivedDisposable, derivedHandleChanges, derivedOpts, derivedWithSetter, derivedWithStore } from './observables/derived.js';
-export { type IDerivedReader } from './observables/derivedImpl.js';
-export { ObservableLazy, ObservableLazyPromise, ObservablePromise, PromiseResult, } from './utils/promise.js';
-export { derivedWithCancellationToken, waitForState } from './utils/utilsCancellation.js';
+export { observableValueOpts } from './observables/observableValueOpts';
+export { autorun, autorunDelta, autorunHandleChanges, autorunOpts, autorunWithStore, autorunWithStoreHandleChanges, autorunIterableDelta, autorunSelfDisposable } from './reactions/autorun';
+export { type IObservable, type IObservableWithChange, type IObserver, type IReader, type ISettable, type ISettableObservable, type ITransaction } from './base';
+export { disposableObservableValue } from './observables/observableValue';
+export { derived, derivedDisposable, derivedHandleChanges, derivedOpts, derivedWithSetter, derivedWithStore } from './observables/derived';
+export { type IDerivedReader } from './observables/derivedImpl';
+export { ObservableLazy, ObservableLazyPromise, ObservablePromise, PromiseResult, } from './utils/promise';
+export { derivedWithCancellationToken, waitForState } from './utils/utilsCancellation';
 export {
 	debouncedObservableDeprecated, debouncedObservable, derivedObservableWithCache,
 	derivedObservableWithWritableCache, keepObserved, mapObservableArrayCached, observableFromPromise,
 	recomputeInitiallyAndOnChange,
 	signalFromObservable, wasEventTriggeredRecently,
-} from './utils/utils.js';
-export { type DebugOwner } from './debugName.js';
-export { type IChangeContext, type IChangeTracker, recordChanges, recordChangesLazy } from './changeTracker.js';
-export { constObservable } from './observables/constObservable.js';
-export { type IObservableSignal, observableSignal } from './observables/observableSignal.js';
-export { observableFromEventOpts } from './observables/observableFromEvent.js';
-export { observableSignalFromEvent } from './observables/observableSignalFromEvent.js';
-export { asyncTransaction, globalTransaction, subtransaction, transaction, TransactionImpl } from './transaction.js';
-export { observableFromValueWithChangeEvent, ValueWithChangeEventFromObservable } from './utils/valueWithChangeEvent.js';
-export { runOnChange, runOnChangeWithCancellationToken, runOnChangeWithStore, type RemoveUndefined } from './utils/runOnChange.js';
-export { derivedConstOnceDefined, latestChangedValue } from './experimental/utils.js';
-export { observableFromEvent } from './observables/observableFromEvent.js';
-export { observableValue } from './observables/observableValue.js';
+} from './utils/utils';
+export { type DebugOwner } from './debugName';
+export { type IChangeContext, type IChangeTracker, recordChanges, recordChangesLazy } from './changeTracker';
+export { constObservable } from './observables/constObservable';
+export { type IObservableSignal, observableSignal } from './observables/observableSignal';
+export { observableFromEventOpts } from './observables/observableFromEvent';
+export { observableSignalFromEvent } from './observables/observableSignalFromEvent';
+export { asyncTransaction, globalTransaction, subtransaction, transaction, TransactionImpl } from './transaction';
+export { observableFromValueWithChangeEvent, ValueWithChangeEventFromObservable } from './utils/valueWithChangeEvent';
+export { runOnChange, runOnChangeWithCancellationToken, runOnChangeWithStore, type RemoveUndefined } from './utils/runOnChange';
+export { derivedConstOnceDefined, latestChangedValue } from './experimental/utils';
+export { observableFromEvent } from './observables/observableFromEvent';
+export { observableValue } from './observables/observableValue';
 
-export { ObservableSet } from './set.js';
-export { ObservableMap } from './map.js';
-export { DebugLocation } from './debugLocation.js';
+export { ObservableSet } from './set';
+export { ObservableMap } from './map';
+export { DebugLocation } from './debugLocation';
 
-import { addLogger, setLogObservableFn } from './logging/logging.js';
-import { ConsoleObservableLogger, logObservableToConsole } from './logging/consoleObservableLogger.js';
-import { DevToolsLogger } from './logging/debugger/devToolsLogger.js';
-import { _setDebugGetDependencyGraph } from './observables/baseObservable.js';
-import { debugGetDependencyGraph } from './logging/debugGetDependencyGraph.js';
+import { addLogger, setLogObservableFn } from './logging/logging';
+import { ConsoleObservableLogger, logObservableToConsole } from './logging/consoleObservableLogger';
+import { DevToolsLogger } from './logging/debugger/devToolsLogger';
+import { _setDebugGetDependencyGraph } from './observables/baseObservable';
+import { debugGetDependencyGraph } from './logging/debugGetDependencyGraph';
 
 _setDebugGetDependencyGraph(debugGetDependencyGraph);
 setLogObservableFn(logObservableToConsole);

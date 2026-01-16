@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, ITransaction } from '../base.js';
-import { subtransaction } from '../transaction.js';
-import { EqualityComparer, Event, IDisposable, strictEquals } from '../commonFacade/deps.js';
-import { DebugOwner, DebugNameData, IDebugNameData } from '../debugName.js';
-import { getLogger } from '../logging/logging.js';
-import { BaseObservable } from './baseObservable.js';
-import { DebugLocation } from '../debugLocation.js';
+import { IObservable, ITransaction } from '../base';
+import { subtransaction } from '../transaction';
+import { EqualityComparer, Event, IDisposable, strictEquals } from '../commonFacade/deps';
+import { DebugOwner, DebugNameData, IDebugNameData } from '../debugName';
+import { getLogger } from '../logging/logging';
+import { BaseObservable } from './baseObservable';
+import { DebugLocation } from '../debugLocation';
 
 
 export function observableFromEvent<T, TArgs = unknown>(

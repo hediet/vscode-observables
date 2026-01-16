@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable } from '../base.js';
-import { transaction } from '../transaction.js';
-import { Event, IDisposable } from '../commonFacade/deps.js';
-import { DebugOwner, DebugNameData } from '../debugName.js';
-import { BaseObservable } from './baseObservable.js';
-import { DebugLocation } from '../debugLocation.js';
+import { IObservable } from '../base';
+import { transaction } from '../transaction';
+import { Event, IDisposable } from '../commonFacade/deps';
+import { DebugOwner, DebugNameData } from '../debugName';
+import { BaseObservable } from './baseObservable';
+import { DebugLocation } from '../debugLocation';
 
 export function observableSignalFromEvent(
 	owner: DebugOwner | string,

@@ -3,17 +3,35 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable } from '../base.js';
-import { Event, IValueWithChangeEvent } from '../commonFacade/deps.js';
-import { DebugOwner } from '../debugName.js';
-import { observableFromEvent } from '../observables/observableFromEvent.js';
+import { IObservable } from '../base';
+import { Event, IValueWithChangeEvent, IDisposable } from '../commonFacade/deps';
+import { DebugOwner } from '../debugName';
+import { observableFromEvent } from '../observables/observableFromEvent';
+import { autorun } from '../reactions/autorun';
+
+/**
+ * Creates an Event from an observable that fires whenever the observable changes.
+ */
+function eventFromObservable<T>(observable: IObservable<T>): Event<void> {
+	return (listener: () => void): IDisposable => {
+		let isFirst = true;
+		return autorun(reader => {
+			observable.read(reader);
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				listener();
+			}
+		});
+	};
+}
 
 export class ValueWithChangeEventFromObservable<T> implements IValueWithChangeEvent<T> {
 	constructor(public readonly observable: IObservable<T>) {
 	}
 
 	get onDidChange(): Event<void> {
-		return Event.fromObservableLight(this.observable);
+		return eventFromObservable(this.observable);
 	}
 
 	get value(): T {

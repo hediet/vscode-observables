@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, IObservableWithChange, IObserver, IReaderWithStore } from '../base.js';
-import { DebugNameData } from '../debugName.js';
-import { assertFn, BugIndicatingError, DisposableStore, IDisposable, markAsDisposed, onBugIndicatingError, trackDisposable } from '../commonFacade/deps.js';
-import { getLogger } from '../logging/logging.js';
-import { IChangeTracker } from '../changeTracker.js';
-import { DebugLocation } from '../debugLocation.js';
+import { IObservable, IObservableWithChange, IObserver, IReaderWithStore } from '../base';
+import { DebugNameData } from '../debugName';
+import { assertFn, BugIndicatingError, DisposableStore, IDisposable, markAsDisposed, onBugIndicatingError, trackDisposable } from '../commonFacade/deps';
+import { getLogger } from '../logging/logging';
+import { IChangeTracker } from '../changeTracker';
+import { DebugLocation } from '../debugLocation';
 
 export const enum AutorunState {
 	/**

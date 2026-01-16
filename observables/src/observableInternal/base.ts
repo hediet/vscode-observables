@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { DisposableStore, onUnexpectedError } from './commonFacade/deps.js';
+import { DisposableStore, onUnexpectedError } from './commonFacade/deps';
 
 /**
  * Represents an observable value.

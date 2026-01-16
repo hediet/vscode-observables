@@ -3,12 +3,12 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, IObserver } from '../base.js';
-import { Derived } from '../observables/derivedImpl.js';
-import { FromEventObservable } from '../observables/observableFromEvent.js';
-import { ObservableValue } from '../observables/observableValue.js';
-import { AutorunObserver } from '../reactions/autorunImpl.js';
-import { formatValue } from './consoleObservableLogger.js';
+import { IObservable, IObserver } from '../base';
+import { Derived } from '../observables/derivedImpl';
+import { FromEventObservable } from '../observables/observableFromEvent';
+import { ObservableValue } from '../observables/observableValue';
+import { AutorunObserver } from '../reactions/autorunImpl';
+import { formatValue } from './consoleObservableLogger';
 
 export function debugGetDependencyGraph(obs: IObservable<any> | IObserver, options?: { debugNamePostProcessor?: (name: string) => string }): string {
 	const debugNamePostProcessor = options?.debugNamePostProcessor ?? ((str: string) => str);

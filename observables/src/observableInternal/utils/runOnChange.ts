@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservableWithChange } from '../base.js';
-import { CancellationToken, cancelOnDispose } from '../commonFacade/cancellation.js';
-import { DisposableStore, IDisposable } from '../commonFacade/deps.js';
-import { autorunWithStoreHandleChanges } from '../reactions/autorun.js';
+import { IObservableWithChange } from '../base';
+import { CancellationToken, cancelOnDispose } from '../commonFacade/cancellation';
+import { DisposableStore, IDisposable } from '../commonFacade/deps';
+import { autorunWithStoreHandleChanges } from '../reactions/autorun';
 
 export type RemoveUndefined<T> = T extends undefined ? never : T;
 

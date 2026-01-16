@@ -3,20 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AutorunObserver, AutorunState } from '../../reactions/autorunImpl.js';
-import { TransactionImpl } from '../../transaction.js';
-import { IChangeInformation, IObservableLogger } from '../logging.js';
-import { formatValue } from '../consoleObservableLogger.js';
-import { ObsDebuggerApi, IObsDeclaration, ObsInstanceId, ObsStateUpdate, ITransactionState, ObserverInstanceState } from './debuggerApi.js';
-import { registerDebugChannel } from './debuggerRpc.js';
-import { deepAssign, deepAssignDeleteNulls, Throttler } from './utils.js';
-import { FromEventObservable } from '../../observables/observableFromEvent.js';
-import { BugIndicatingError, isDefined, onUnexpectedError } from '../../commonFacade/deps.js';
-import { IObservable, IObserver } from '../../base.js';
-import { BaseObservable } from '../../observables/baseObservable.js';
-import { Derived, DerivedState } from '../../observables/derivedImpl.js';
-import { ObservableValue } from '../../observables/observableValue.js';
-import { DebugLocation } from '../../debugLocation.js';
+import { AutorunObserver, AutorunState } from '../../reactions/autorunImpl';
+import { TransactionImpl } from '../../transaction';
+import { IChangeInformation, IObservableLogger } from '../logging';
+import { formatValue } from '../consoleObservableLogger';
+import { ObsDebuggerApi, IObsDeclaration, ObsInstanceId, ObsStateUpdate, ITransactionState, ObserverInstanceState } from './debuggerApi';
+import { registerDebugChannel } from './debuggerRpc';
+import { deepAssign, deepAssignDeleteNulls, Throttler } from './utils';
+import { FromEventObservable } from '../../observables/observableFromEvent';
+import { BugIndicatingError, isDefined, onUnexpectedError } from '../../commonFacade/deps';
+import { IObservable, IObserver } from '../../base';
+import { BaseObservable } from '../../observables/baseObservable';
+import { Derived, DerivedState } from '../../observables/derivedImpl';
+import { ObservableValue } from '../../observables/observableValue';
+import { DebugLocation } from '../../debugLocation';
 
 interface IInstanceInfo {
 	declarationId: number;

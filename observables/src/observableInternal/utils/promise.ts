@@ -2,10 +2,10 @@
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-import { IObservable } from '../base.js';
-import { transaction } from '../transaction.js';
-import { derived } from '../observables/derived.js';
-import { observableValue } from '../observables/observableValue.js';
+import { IObservable } from '../base';
+import { transaction } from '../transaction';
+import { derived } from '../observables/derived';
+import { observableValue } from '../observables/observableValue';
 
 export class ObservableLazy<T> {
 	private readonly _value = observableValue<T | undefined>(this, undefined);

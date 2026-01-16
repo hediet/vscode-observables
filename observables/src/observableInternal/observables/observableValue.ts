@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ISettableObservable, ITransaction } from '../base.js';
-import { TransactionImpl } from '../transaction.js';
-import { BaseObservable } from './baseObservable.js';
-import { EqualityComparer, IDisposable, strictEquals } from '../commonFacade/deps.js';
-import { DebugNameData } from '../debugName.js';
-import { getLogger } from '../logging/logging.js';
-import { DebugLocation } from '../debugLocation.js';
+import { ISettableObservable, ITransaction } from '../base';
+import { TransactionImpl } from '../transaction';
+import { BaseObservable } from './baseObservable';
+import { EqualityComparer, IDisposable, strictEquals } from '../commonFacade/deps';
+import { DebugNameData } from '../debugName';
+import { getLogger } from '../logging/logging';
+import { DebugLocation } from '../debugLocation';
 
 /**
  * Creates an observable value.

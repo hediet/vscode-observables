@@ -3,11 +3,11 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservableWithChange, ITransaction } from '../base.js';
-import { transaction } from '../transaction.js';
-import { DebugNameData } from '../debugName.js';
-import { BaseObservable } from './baseObservable.js';
-import { DebugLocation } from '../debugLocation.js';
+import { IObservableWithChange, ITransaction } from '../base';
+import { transaction } from '../transaction';
+import { DebugNameData } from '../debugName';
+import { BaseObservable } from './baseObservable';
+import { DebugLocation } from '../debugLocation';
 
 /**
  * Creates a signal that can be triggered to invalidate observers.

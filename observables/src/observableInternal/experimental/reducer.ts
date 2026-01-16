@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { EqualityComparer, strictEquals, BugIndicatingError } from '../commonFacade/deps.js';
-import { IObservable, IObservableWithChange, ISettableObservable } from '../base.js';
-import { subtransaction } from '../transaction.js';
-import { IChangeTracker } from '../changeTracker.js';
-import { DebugNameData, DebugOwner } from '../debugName.js';
-import { DerivedWithSetter, IDerivedReader } from '../observables/derivedImpl.js';
-import { DebugLocation } from '../debugLocation.js';
+import { EqualityComparer, strictEquals, BugIndicatingError } from '../commonFacade/deps';
+import { IObservable, IObservableWithChange, ISettableObservable } from '../base';
+import { subtransaction } from '../transaction';
+import { IChangeTracker } from '../changeTracker';
+import { DebugNameData, DebugOwner } from '../debugName';
+import { DerivedWithSetter, IDerivedReader } from '../observables/derivedImpl';
+import { DebugLocation } from '../debugLocation';
 
 export interface IReducerOptions<T, TChangeSummary = void, TOutChange = void> {
 	/**

@@ -41,6 +41,16 @@ export class CancellationTokenSource {
     }
 
     dispose(): void {
+        this.cancel();
         this._listeners.clear();
     }
+}
+
+/**
+ * Creates a CancellationToken that is cancelled when the given disposable is disposed.
+ */
+export function cancelOnDispose(disposable: { add: (d: { dispose: () => void }) => void }): CancellationToken {
+    const source = new CancellationTokenSource();
+    disposable.add(source);
+    return source.token;
 }

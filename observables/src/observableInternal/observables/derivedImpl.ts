@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, IObservableWithChange, IObserver, IReaderWithStore, ISettableObservable, ITransaction, } from '../base.js';
-import { BaseObservable } from './baseObservable.js';
-import { DebugNameData } from '../debugName.js';
-import { BugIndicatingError, DisposableStore, EqualityComparer, assertFn, onBugIndicatingError } from '../commonFacade/deps.js';
-import { getLogger } from '../logging/logging.js';
-import { IChangeTracker } from '../changeTracker.js';
-import { DebugLocation } from '../debugLocation.js';
+import { IObservable, IObservableWithChange, IObserver, IReaderWithStore, ISettableObservable, ITransaction, } from '../base';
+import { BaseObservable } from './baseObservable';
+import { DebugNameData } from '../debugName';
+import { BugIndicatingError, DisposableStore, EqualityComparer, assertFn, onBugIndicatingError } from '../commonFacade/deps';
+import { getLogger } from '../logging/logging';
+import { IChangeTracker } from '../changeTracker';
+import { DebugLocation } from '../debugLocation';
 
 export interface IDerivedReader<TChange = void> extends IReaderWithStore {
 	/**

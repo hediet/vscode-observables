@@ -3,13 +3,13 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, IReader, ITransaction, ISettableObservable, IObservableWithChange } from '../base.js';
-import { IChangeTracker } from '../changeTracker.js';
-import { DisposableStore, EqualityComparer, IDisposable, strictEquals } from '../commonFacade/deps.js';
-import { DebugLocation } from '../debugLocation.js';
-import { DebugOwner, DebugNameData, IDebugNameData } from '../debugName.js';
-import { _setDerivedOpts } from './baseObservable.js';
-import { IDerivedReader, Derived, DerivedWithSetter } from './derivedImpl.js';
+import { IObservable, IReader, ITransaction, ISettableObservable, IObservableWithChange } from '../base';
+import { IChangeTracker } from '../changeTracker';
+import { DisposableStore, EqualityComparer, IDisposable, strictEquals } from '../commonFacade/deps';
+import { DebugLocation } from '../debugLocation';
+import { DebugOwner, DebugNameData, IDebugNameData } from '../debugName';
+import { _setDerivedOpts } from './baseObservable';
+import { IDerivedReader, Derived, DerivedWithSetter } from './derivedImpl';
 
 /**
  * Creates an observable that is derived from other observables.

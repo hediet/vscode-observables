@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { ChannelFactory, IChannelHandler, API, SimpleTypedRpcConnection, MakeSideAsync } from './rpc.js';
+import { ChannelFactory, IChannelHandler, API, SimpleTypedRpcConnection, MakeSideAsync } from './rpc';
 
 export function registerDebugChannel<T extends { channelId: string } & API>(
 	channelId: T['channelId'],

@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, IObserver, IObservableWithChange } from '../base.js';
-import { ConvenientObservable } from './baseObservable.js';
+import { IObservable, IObserver, IObservableWithChange } from '../base';
+import { ConvenientObservable } from './baseObservable';
 
 /**
  * Represents an efficient observable whose value never changes.

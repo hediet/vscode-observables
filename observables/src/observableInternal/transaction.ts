@@ -3,9 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { handleBugIndicatingErrorRecovery, IObservable, IObserver, ITransaction } from './base.js';
-import { getFunctionName } from './debugName.js';
-import { getLogger } from './logging/logging.js';
+import { handleBugIndicatingErrorRecovery, IObservable, IObserver, ITransaction } from './base';
+import { getFunctionName } from './debugName';
+import { getLogger } from './logging/logging';
 
 /**
  * Starts a transaction in which many observables can be changed at once.

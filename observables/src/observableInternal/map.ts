@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservable, ITransaction } from '../observable.js';
-import { observableValueOpts } from './observables/observableValueOpts.js';
+import { IObservable, ITransaction } from './base';
+import { observableValueOpts } from './observables/observableValueOpts';
 
 
 export class ObservableMap<K, V> implements Map<K, V> {

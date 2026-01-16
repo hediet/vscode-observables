@@ -3,16 +3,18 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { autorun } from '../reactions/autorun.js';
-import { IObservable, IObservableWithChange, IObserver, IReader, ITransaction } from '../base.js';
-import { transaction } from '../transaction.js';
-import { observableValue } from '../observables/observableValue.js';
-import { DebugOwner } from '../debugName.js';
-import { DisposableStore, Event, IDisposable, toDisposable } from '../commonFacade/deps.js';
-import { derived, derivedOpts } from '../observables/derived.js';
-import { observableFromEvent } from '../observables/observableFromEvent.js';
-import { observableSignal } from '../observables/observableSignal.js';
-import { _setKeepObserved, _setRecomputeInitiallyAndOnChange } from '../observables/baseObservable.js';
+type Timeout = ReturnType<typeof setTimeout>;
+
+import { autorun } from '../reactions/autorun';
+import { IObservable, IObservableWithChange, IObserver, IReader, ITransaction } from '../base';
+import { transaction } from '../transaction';
+import { observableValue } from '../observables/observableValue';
+import { DebugOwner } from '../debugName';
+import { DisposableStore, Event, IDisposable, toDisposable } from '../commonFacade/deps';
+import { derived, derivedOpts } from '../observables/derived';
+import { observableFromEvent } from '../observables/observableFromEvent';
+import { observableSignal } from '../observables/observableSignal';
+import { _setKeepObserved, _setRecomputeInitiallyAndOnChange } from '../observables/baseObservable';
 
 export function observableFromPromise<T>(promise: Promise<T>): IObservable<{ value?: T }> {
 	const observable = observableValue<{ value?: T }>('promiseValue', {});

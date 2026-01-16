@@ -3,7 +3,9 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IDisposable } from '../../../lifecycle.js';
+import { IDisposable } from '../../../disposables';
+
+type Timeout = ReturnType<typeof setTimeout>;
 
 export class Debouncer implements IDisposable {
 	private _timeout: Timeout | undefined = undefined;

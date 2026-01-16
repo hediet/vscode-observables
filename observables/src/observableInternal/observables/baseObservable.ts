@@ -3,14 +3,14 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { IObservableWithChange, IObserver, IReader, IObservable } from '../base.js';
-import { DisposableStore } from '../commonFacade/deps.js';
-import { DebugLocation } from '../debugLocation.js';
-import { DebugOwner, getFunctionName } from '../debugName.js';
-import { debugGetDependencyGraph } from '../logging/debugGetDependencyGraph.js';
-import { getLogger, logObservable } from '../logging/logging.js';
-import type { keepObserved, recomputeInitiallyAndOnChange } from '../utils/utils.js';
-import { derivedOpts } from './derived.js';
+import { IObservableWithChange, IObserver, IReader, IObservable } from '../base';
+import { DisposableStore } from '../commonFacade/deps';
+import { DebugLocation } from '../debugLocation';
+import { DebugOwner, getFunctionName } from '../debugName';
+import { debugGetDependencyGraph } from '../logging/debugGetDependencyGraph';
+import { getLogger, logObservable } from '../logging/logging';
+import type { keepObserved, recomputeInitiallyAndOnChange } from '../utils/utils';
+import { derivedOpts } from './derived';
 
 let _derived: typeof derivedOpts;
 /**
