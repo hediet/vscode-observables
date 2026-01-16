@@ -17,9 +17,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "*.ts", "*.tsx"],
-  "references": [
-    { "path": "../observables" },
-    { "path": "../observables-react" }
-  ]
+  "include": ["src", "*.ts", "*.tsx"]
 }

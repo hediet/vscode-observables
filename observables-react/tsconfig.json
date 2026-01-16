@@ -3,10 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "noEmit": true
   },
   "include": [
     "src/**/*"
@@ -14,8 +14,5 @@
   "exclude": [
     "dist",
     "node_modules"
-  ],
-  "references": [
-    { "path": "../observables" }
   ]
 }

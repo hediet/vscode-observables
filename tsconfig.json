@@ -10,13 +10,6 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,
-    "composite": true,
-    "incremental": true
-  },
-  "references": [
-    { "path": "./observables" },
-    { "path": "./observables-react" },
-    { "path": "./example-observables-react" }
-  ]
+    "sourceMap": true
+  }
 }
