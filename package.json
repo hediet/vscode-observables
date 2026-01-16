@@ -1,0 +1,24 @@
+{
+  "name": "@vscode/observables-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Observable utilities for VS Code",
+  "workspaces": [
+    "observables",
+    "observables-react",
+    "example-observables-react"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "dev": "concurrently \"npm run dev -w observables\" \"npm run dev -w observables-react\" \"npm run dev -w example-observables-react\"",
+    "clean": "npm run clean --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "concurrently": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
