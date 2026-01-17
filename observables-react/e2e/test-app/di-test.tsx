@@ -98,3 +98,40 @@ const DITestView = viewWithModel(
         </div>
     )
 );
+
+// Test: inject() used directly in viewWithModel props (not ViewModel)
+// This tests that injected props work in the view's props parameter, not just the model
+class SimpleModel extends ViewModel({}) { }
+
+const DirectInjectView = viewWithModel(
+    SimpleModel,
+    { greetingService: inject(GreetingServiceKey) },
+    (_reader, _model, props) => (
+        <div data-testid="direct-inject-test">
+            <span data-testid="direct-inject-greeting">{props.greetingService.greet('Direct')}</span>
+        </div>
+    )
+);
+
+export function DirectInjectTestSection() {
+    const [diContainer] = React.useState(() => {
+        const container = new DIContainer();
+        container.register(GreetingServiceKey, {
+            greet: (name: string) => `Directly injected: ${name}!`,
+        });
+        return container;
+    });
+
+    return (
+        <section>
+            <h2>Direct Inject in Props</h2>
+            <DIProvider container={diContainer}>
+                {/* Should compile without passing greetingService - it's injected */}
+                <DirectInjectView />
+
+                {/* Explicit prop overrides DI injection */}
+                <DirectInjectView greetingService={{ greet: (name: string) => `Explicit prop: ${name}!` }} />
+            </DIProvider>
+        </section>
+    );
+}

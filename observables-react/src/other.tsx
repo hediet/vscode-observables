@@ -55,10 +55,21 @@ export function ViewModel<T extends PropsDesc>(props: T): ViewModelCtor<PropsOut
     };
 }
 
-/** Removes keys where transformer has _requiredContext (injected, not passed as props) */
-type OmitInjected<T extends PropsDesc> = {
-    [K in keyof T as T[K] extends { _requiredContext: Context<unknown> } ? never : K]: T[K] extends IPropertyTransformerFactory<infer U, any> ? U : never;
+/** Check if a transformer has _requiredContext defined (injected) */
+type HasRequiredContext<T> = T extends { _requiredContext: Context<unknown> } ? true : false;
+
+/** Required props: non-injected properties that must be provided */
+type RequiredProps<T extends PropsDesc> = {
+    [K in keyof T as HasRequiredContext<T[K]> extends true ? never : K]: T[K] extends IPropertyTransformerFactory<infer U, any> ? U : never;
 };
+
+/** Optional props: injected properties that can be overridden */
+type OptionalProps<T extends PropsDesc> = {
+    [K in keyof T as HasRequiredContext<T[K]> extends true ? K : never]?: T[K] extends IPropertyTransformerFactory<any, infer U> ? U : never;
+};
+
+/** Combined props type: required + optional injected */
+type WithOptionalInjected<T extends PropsDesc> = RequiredProps<T> & OptionalProps<T>;
 
 /** Collect unique _requiredContext from transformers */
 function collectRequiredContexts(propsDesc: PropsDesc): Context<unknown>[] {
@@ -102,9 +113,9 @@ export function viewWithModel<TModelProps extends PropsDesc, TProps extends Prop
     viewModelCtor: ViewModelCtor<PropsOut<TModelProps>, TModel, TModelProps> | (new () => TModel),
     props: TProps,
     render: (reader: IReader, model: TModel, props: PropsOut<TProps>) => React.ReactNode,
-): React.ComponentType<OmitInjected<TModelProps> & PropsIn<TProps>> {
+): React.ComponentType<WithOptionalInjected<TModelProps> & WithOptionalInjected<TProps>> {
     const modelPropsDesc = '_props' in viewModelCtor ? viewModelCtor._props : {};
-    const requiredContexts = collectRequiredContexts(modelPropsDesc);
+    const requiredContexts = collectRequiredContexts({ ...modelPropsDesc, ...props });
 
     // Fast path: no contexts needed
     if (requiredContexts.length === 0) {
@@ -116,7 +127,7 @@ export function viewWithModel<TModelProps extends PropsDesc, TProps extends Prop
         return createCore(viewModelCtor, props, render, p.get().__ctx)(p);
     });
 
-    return function ContextWrapper(componentProps: OmitInjected<TModelProps> & PropsIn<TProps>): ReactNode {
+    return function ContextWrapper(componentProps: WithOptionalInjected<TModelProps> & WithOptionalInjected<TProps>): ReactNode {
         const ctx = new Map<Context<unknown>, unknown>();
         for (const c of requiredContexts) ctx.set(c, useContext(c)); // eslint-disable-line react-hooks/rules-of-hooks
         return <InnerView {...componentProps as any} __ctx={ctx} />;
