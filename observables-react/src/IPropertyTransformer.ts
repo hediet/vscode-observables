@@ -1,4 +1,5 @@
 import { derived, IObservable, IReader } from "@vscode/observables";
+import { Context } from "react";
 
 export type Readable<T> = (reader: IReader) => T;
 
@@ -10,7 +11,10 @@ export interface IReadableObj<T> {
 }
 
 export interface IPropertyTransformerFactory<TIn, TOut> {
-    create(readable: Readable<TIn>): IReadableObj<TOut>;
+    /** If set, this context's value is passed to create() */
+    readonly _requiredContext?: Context<unknown>;
+    /** @param contextValue - value of _requiredContext if declared, otherwise undefined */
+    create(readable: Readable<TIn>, contextValue: unknown): IReadableObj<TOut>;
 }
 
 /**

@@ -2,7 +2,7 @@ import { derivedDisposable, IObservable, IReader } from "@vscode/observables";
 import { IDisposable, DisposableStore } from "@vscode/observables";
 import { IPropertyTransformerFactory, prop } from "./IPropertyTransformer";
 import { obsView } from "./obsView";
-import React, { ReactNode } from "react";
+import React, { ReactNode, Context, useContext } from "react";
 
 export type PropsDesc = Record<string, IPropertyTransformerFactory<any, any>>;
 
@@ -21,7 +21,7 @@ export function mapObject<T extends Record<string, any>, U>(obj: T, fn: (value: 
 export function view<T extends PropsDesc>(props: T, render: (reader: IReader, props: PropsOut<T>) => React.ReactNode): React.ComponentType<PropsIn<T>> {
     return obsView('view', p => {
         const readableProps = mapObject(props, (value, key) => {
-            return value.create(reader => p.read(reader)[key]);
+            return value.create(reader => p.read(reader)[key], undefined);
         });
 
         return reader => {
@@ -55,33 +55,72 @@ export function ViewModel<T extends PropsDesc>(props: T): ViewModelCtor<PropsOut
     };
 }
 
+/** Removes keys where transformer has _requiredContext (injected, not passed as props) */
+type OmitInjected<T extends PropsDesc> = {
+    [K in keyof T as T[K] extends { _requiredContext: Context<unknown> } ? never : K]: T[K] extends IPropertyTransformerFactory<infer U, any> ? U : never;
+};
+
+/** Collect unique _requiredContext from transformers */
+function collectRequiredContexts(propsDesc: PropsDesc): Context<unknown>[] {
+    const contexts: Context<unknown>[] = [];
+    for (const t of Object.values(propsDesc)) {
+        const ctx = t._requiredContext;
+        if (ctx && !contexts.includes(ctx)) contexts.push(ctx);
+    }
+    return contexts;
+}
+
+/** Core viewWithModel logic - creates model and wires up props */
+function createCore<TModelProps extends PropsDesc, TProps extends PropsDesc, TModel extends IDisposable>(
+    viewModelCtor: ViewModelCtor<PropsOut<TModelProps>, TModel, TModelProps> | (new () => TModel),
+    props: TProps,
+    render: (reader: IReader, model: TModel, props: PropsOut<TProps>) => React.ReactNode,
+    contextValues: Map<Context<unknown>, unknown>,
+) {
+    return (p: IObservable<Record<string, unknown>>) => {
+        const readableModelProps = '_props' in viewModelCtor 
+            ? mapObject(viewModelCtor._props, (v, k) => v.create(r => p.read(r)[k], contextValues.get(v._requiredContext!))) 
+            : {} as never;
+
+        const model = derivedDisposable(reader => {
+            const modelProps = mapObject(readableModelProps, v => v.read(reader));
+            return new viewModelCtor(modelProps);
+        });
+        const readableProps = mapObject(props, (v, k) => v.create(r => p.read(r)[k], contextValues.get(v._requiredContext!)));
+
+        return (reader: IReader) => {
+            const m = model.read(reader);
+            const propValues = mapObject(readableProps, v => v.read(reader));
+            return render(reader, m, propValues);
+        };
+    };
+}
+
+const emptyContexts = new Map<Context<unknown>, unknown>();
 
 export function viewWithModel<TModelProps extends PropsDesc, TProps extends PropsDesc, TModel extends IDisposable>(
     viewModelCtor: ViewModelCtor<PropsOut<TModelProps>, TModel, TModelProps> | (new () => TModel),
     props: TProps,
     render: (reader: IReader, model: TModel, props: PropsOut<TProps>) => React.ReactNode,
-): React.ComponentType<PropsIn<TModelProps> & PropsIn<TProps>> {
-    return obsView('view', p => {
-        const readableModelProps = '_props' in viewModelCtor ? mapObject(viewModelCtor._props, (value, key) => {
-            return value.create(reader => p.read(reader)[key]);
-        }) : {} as never;
+): React.ComponentType<OmitInjected<TModelProps> & PropsIn<TProps>> {
+    const modelPropsDesc = '_props' in viewModelCtor ? viewModelCtor._props : {};
+    const requiredContexts = collectRequiredContexts(modelPropsDesc);
 
-        const model = derivedDisposable(reader => {
-            const props = mapObject(readableModelProps, value => value.read(reader));
-            return new viewModelCtor(props);
-        });
-        const readableProps = mapObject(props, (value, key) => {
-            return value.create(reader => p.read(reader)[key]);
-        });
+    // Fast path: no contexts needed
+    if (requiredContexts.length === 0) {
+        return obsView('viewWithModel', createCore(viewModelCtor, props, render, emptyContexts)) as any;
+    }
 
-        return reader => {
-            const m = model.read(reader);
-            const propValues = mapObject(readableProps, (value) => {
-                return value.read(reader);
-            });
-            return render(reader, m, propValues);
-        };
+    // Slow path: wrap to read required contexts via hooks
+    const InnerView = obsView('viewWithModel', (p: IObservable<{ __ctx: Map<Context<unknown>, unknown> } & Record<string, unknown>>) => {
+        return createCore(viewModelCtor, props, render, p.get().__ctx)(p);
     });
+
+    return function ContextWrapper(componentProps: OmitInjected<TModelProps> & PropsIn<TProps>): ReactNode {
+        const ctx = new Map<Context<unknown>, unknown>();
+        for (const c of requiredContexts) ctx.set(c, useContext(c)); // eslint-disable-line react-hooks/rules-of-hooks
+        return <InnerView {...componentProps as any} __ctx={ctx} />;
+    } as any;
 }
 
 export const Value = view({ value: prop.obs<ReactNode>() }, (reader, props) => {

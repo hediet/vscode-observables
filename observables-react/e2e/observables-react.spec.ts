@@ -177,4 +177,36 @@ test.describe('observables-react', () => {
             expect(Number(newRenderCount)).toBeGreaterThan(Number(initialRenderCount));
         });
     });
+
+    test.describe('Dependency Injection', () => {
+        test('injects services into ViewModel', async ({ page }) => {
+            const greeting = page.getByTestId('di-greeting').first();
+            await expect(greeting).toHaveText('Hello, World!');
+        });
+
+        test('injected service responds to observable changes', async ({ page }) => {
+            const greeting = page.getByTestId('di-greeting').first();
+            const nameInput = page.getByTestId('di-name-input').first();
+
+            await nameInput.fill('Playwright');
+            await expect(greeting).toHaveText('Hello, Playwright!');
+        });
+
+        test('multiple services can be injected', async ({ page }) => {
+            const counter = page.getByTestId('di-counter').first();
+            const incrementBtn = page.getByTestId('di-increment').first();
+
+            await expect(counter).toHaveText('0');
+            await incrementBtn.click();
+            await expect(counter).toHaveText('1');
+            await incrementBtn.click();
+            await expect(counter).toHaveText('2');
+        });
+
+        test('child container overrides parent service', async ({ page }) => {
+            // Child container overrides GreetingService with "Hi there" instead of "Hello"
+            const childGreeting = page.getByTestId('di-greeting').nth(1);
+            await expect(childGreeting).toHaveText('Hi there, World!');
+        });
+    });
 });
