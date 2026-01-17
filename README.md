@@ -86,6 +86,8 @@ function Counter() {
 }
 ```
 
+> **Note:** React Strict Mode is not supported by `@vscode/observables-react`.
+
 ## Development
 
 ### Setup
