@@ -39,3 +39,6 @@ coverage/
 # Temp files
 *.tmp
 *.temp
+
+playwright-report/
+test-results/
