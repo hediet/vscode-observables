@@ -28,7 +28,7 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@vscode/observables": "*"
+        "@vscode/observables": "workspace:*"
     },
     "peerDependencies": {
         "react": "^18.0.0",
