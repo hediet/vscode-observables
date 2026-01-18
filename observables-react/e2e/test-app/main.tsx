@@ -3,6 +3,14 @@ import ReactDOM from 'react-dom/client';
 import { observableValue, derived, IReader, IDisposable } from '@vscode/observables';
 import { obsView, ObsView, view, viewWithModel, ViewModel, prop, val } from '../../src';
 import { DITestSection, DirectInjectTestSection, ProvideViewModelTestSection } from './di-test';
+import {
+    TransactionTestSection,
+    ChainedDerivedTestSection,
+    ViewModelWithPropsTestSection,
+    ConditionalRenderTestSection,
+    ListRenderTestSection,
+    MultipleObservablesTestSection,
+} from './advanced-tests';
 
 // ============================================================================
 // Test Component 1: Basic obsView with counter
@@ -241,6 +249,18 @@ function App() {
             <DirectInjectTestSection />
 
             <ProvideViewModelTestSection />
+
+            <TransactionTestSection />
+
+            <ChainedDerivedTestSection />
+
+            <ViewModelWithPropsTestSection />
+
+            <ConditionalRenderTestSection />
+
+            <ListRenderTestSection />
+
+            <MultipleObservablesTestSection />
         </div>
     );
 }

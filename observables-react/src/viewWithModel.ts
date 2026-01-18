@@ -1,89 +1,15 @@
-import { derivedDisposable, IObservable, IReader } from "@vscode/observables";
-import { IDisposable, DisposableStore } from "@vscode/observables";
-import { IPropertyTransformerFactory, prop } from "./IPropertyTransformer";
+import { derivedDisposable, IDisposable, IReader } from "@vscode/observables";
+import React, { Context } from "react";
+import { IPropertyTransformerFactory } from "./IPropertyTransformer";
 import { obsView } from "./obsView";
-import React, { ReactNode, Context, createContext } from "react";
-
-export type PropsDesc = Record<string, IPropertyTransformerFactory<any, any>>;
-
-// Symbol to store the context on the ViewModel class
-const ViewModelContextSymbol = Symbol('ViewModelContext');
-
-type PropsIn<T extends PropsDesc> = {
-    [K in keyof T]: T[K] extends IPropertyTransformerFactory<infer U, any> ? U : never;
-};
-
-type PropsOut<T extends PropsDesc> = {
-    [K in keyof T]: T[K] extends IPropertyTransformerFactory<any, infer U> ? U : never;
-};
-
-export function mapObject<T extends Record<string, any>, U>(obj: T, fn: (value: T[keyof T], key: string) => U): { [K in keyof T]: U } {
-    return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, fn(value, key)])) as any;
-}
-
-export function view<T extends PropsDesc>(props: T, render: (reader: IReader, props: PropsOut<T>) => React.ReactNode): React.ComponentType<PropsIn<T>> {
-    return obsView('view', (p) => {
-        const readableProps = mapObject(props, (value, key) => {
-            return value.create(reader => p.read(reader)[key], undefined);
-        });
-
-        return reader => {
-            const propValues = mapObject(readableProps, (value) => {
-                return value.read(reader);
-            });
-            return render(reader, propValues);
-        };
-    });
-}
-
-class BaseViewModel<TProps> implements IDisposable {
-    protected readonly props: TProps;
-
-    protected _store = new DisposableStore();
-
-    constructor(props: TProps) {
-        this.props = props;
-    }
-
-    dispose(): void {
-        this._store.dispose();
-    }
-}
-
-// Type for ViewModel classes created via ViewModel()
-type ViewModelClass<TProps extends PropsDesc> = {
-    new (arg: PropsOut<TProps>): BaseViewModel<PropsOut<TProps>>;
-    _props: TProps;
-    [ViewModelContextSymbol]?: Context<unknown>;
-};
-
-/** Get or create the context for a ViewModel class */
-function getOrCreateViewModelContext<T>(ctor: { [ViewModelContextSymbol]?: Context<T | undefined> }): Context<T | undefined> {
-    if (!ctor[ViewModelContextSymbol]) {
-        (ctor as any)[ViewModelContextSymbol] = createContext<T | undefined>(undefined);
-    }
-    return ctor[ViewModelContextSymbol]!;
-}
-
-export function ViewModel<T extends PropsDesc>(props: T): ViewModelClass<T> {
-    return class extends BaseViewModel<PropsOut<T>> {
-        static _props = props;
-    } as ViewModelClass<T>;
-}
-
-/** Provider component to override a ViewModel instance in tests */
-export function ProvideViewModel<T>({ 
-    viewModel: ViewModelClass, 
-    value, 
-    children 
-}: { 
-    viewModel: { [ViewModelContextSymbol]?: Context<T | undefined> }; 
-    value: T; 
-    children: ReactNode;
-}): ReactNode {
-    const Context = getOrCreateViewModelContext<T>(ViewModelClass);
-    return <Context.Provider value={value}>{children}</Context.Provider>;
-}
+import { mapObject } from "./utils";
+import {
+    BaseViewModel,
+    getOrCreateViewModelContext,
+    PropsDesc,
+    PropsOut,
+    ViewModelContextSymbol,
+} from "./viewModel";
 
 /** Check if a transformer has _requiredContext defined (injected) */
 type HasRequiredContext<T> = T extends { _requiredContext: Context<unknown> } ? true : false;
@@ -178,12 +104,4 @@ export function viewWithModel(
         },
         allContexts.length > 0 ? allContexts : undefined
     );
-}
-
-export const Value = view({ value: prop.obs<ReactNode>() }, (reader, props) => {
-    return props.value.read(reader);
-});
-
-export function val(v: IObservable<ReactNode>) {
-    return <Value value={v} />;
 }
