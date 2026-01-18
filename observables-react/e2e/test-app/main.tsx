@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { observableValue, derived, IReader, IDisposable } from '@vscode/observables';
 import { obsView, ObsView, view, viewWithModel, ViewModel, prop, val } from '../../src';
-import { DITestSection, DirectInjectTestSection } from './di-test';
+import { DITestSection, DirectInjectTestSection, ProvideViewModelTestSection } from './di-test';
 
 // ============================================================================
 // Test Component 1: Basic obsView with counter
@@ -239,6 +239,8 @@ function App() {
             <DITestSection />
 
             <DirectInjectTestSection />
+
+            <ProvideViewModelTestSection />
         </div>
     );
 }

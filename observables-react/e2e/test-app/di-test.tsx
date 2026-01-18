@@ -1,6 +1,6 @@
 import React from 'react';
 import { observableValue, IReader, IObservable } from '@vscode/observables';
-import { viewWithModel, ViewModel, DIContainer, DIProvider, createServiceKey, inject } from '../../src';
+import { viewWithModel, ViewModel, DIContainer, DIProvider, createServiceKey, inject, ProvideViewModel } from '../../src';
 
 export function DITestSection() {
     const [{ diContainer, childContainer }] = React.useState(() => {
@@ -132,6 +132,59 @@ export function DirectInjectTestSection() {
                 {/* Explicit prop overrides DI injection */}
                 <DirectInjectView greetingService={{ greet: (name: string) => `Explicit prop: ${name}!` }} />
             </DIProvider>
+        </section>
+    );
+}
+
+// Test: ProvideViewModel allows overriding the entire ViewModel for testing
+class OverridableModel extends ViewModel({}) {
+    public readonly message = observableValue(this, 'Default message');
+    
+    getMessage(reader: IReader): string {
+        return this.message.read(reader);
+    }
+}
+
+const OverridableView = viewWithModel(
+    OverridableModel,
+    {},
+    (reader, model) => (
+        <div data-testid="overridable-view">
+            <span data-testid="overridable-message">{model.getMessage(reader)}</span>
+        </div>
+    )
+);
+
+export function ProvideViewModelTestSection() {
+    // Create a mock model for testing
+    const [mockModel] = React.useState(() => {
+        const model = {
+            message: observableValue({}, 'Mocked message from ProvideViewModel!'),
+            getMessage(reader: IReader): string {
+                return this.message.read(reader);
+            },
+            dispose() {},
+        };
+        return model;
+    });
+
+    return (
+        <section>
+            <h2>ProvideViewModel (Testing Override)</h2>
+            
+            {/* Normal usage - creates its own model */}
+            <div>
+                <h3>Normal (creates own model):</h3>
+                <OverridableView />
+            </div>
+            
+            {/* With ProvideViewModel - uses the provided mock */}
+            <div>
+                <h3>With ProvideViewModel (uses mock):</h3>
+                <ProvideViewModel viewModel={OverridableModel} value={mockModel}>
+                    <OverridableView />
+                </ProvideViewModel>
+            </div>
         </section>
     );
 }

@@ -209,4 +209,31 @@ test.describe('observables-react', () => {
             await expect(childGreeting).toHaveText('Hi there, World!');
         });
     });
+
+    test.describe('Direct Inject in Props', () => {
+        test('injects service directly in viewWithModel props', async ({ page }) => {
+            const greeting = page.getByTestId('direct-inject-greeting').first();
+            await expect(greeting).toHaveText('Directly injected: Direct!');
+        });
+
+        test('explicit prop overrides DI injection', async ({ page }) => {
+            // The second DirectInjectView has explicit greetingService prop
+            const overriddenGreeting = page.getByTestId('direct-inject-greeting').nth(1);
+            await expect(overriddenGreeting).toHaveText('Explicit prop: Direct!');
+        });
+    });
+
+    test.describe('ProvideViewModel', () => {
+        test('normal view creates its own model', async ({ page }) => {
+            // First OverridableView (without ProvideViewModel) uses default message
+            const normalMessage = page.getByTestId('overridable-message').first();
+            await expect(normalMessage).toHaveText('Default message');
+        });
+
+        test('ProvideViewModel overrides the model', async ({ page }) => {
+            // Second OverridableView (with ProvideViewModel) uses mocked message
+            const mockedMessage = page.getByTestId('overridable-message').nth(1);
+            await expect(mockedMessage).toHaveText('Mocked message from ProvideViewModel!');
+        });
+    });
 });

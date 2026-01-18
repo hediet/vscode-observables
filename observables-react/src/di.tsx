@@ -68,20 +68,35 @@ export function useDIContainer(): DIContainer {
 // inject() - Property Transformer for DI
 // =============================================================================
 
-class InjectTransformerFactory<T> implements IPropertyTransformerFactory<never, T> {
+class InjectTransformerFactory<T> implements IPropertyTransformerFactory<T | undefined, T> {
     readonly _requiredContext = DIContext as Context<unknown>;
 
     constructor(public readonly serviceKey: ServiceKey<T>) { }
 
-    create(_readable: Readable<never>, contextValue: unknown): IReadableObj<T> {
+    create(readable: Readable<T | undefined>, contextValue: unknown): IReadableObj<T> {
         const container = contextValue as DIContainer | null;
-        if (!container) throw new Error(`inject(${this.serviceKey.name}): DIProvider not found`);
-        const service = container.get(this.serviceKey);
-        return { read: () => service };
+        let cachedService: T | undefined;
+        
+        return {
+            read: (reader) => {
+                // Check if an explicit value was provided as a prop
+                const explicitValue = readable(reader);
+                if (explicitValue !== undefined) {
+                    return explicitValue;
+                }
+                
+                // Otherwise, use DI container (cached)
+                if (cachedService === undefined) {
+                    if (!container) throw new Error(`inject(${this.serviceKey.name}): DIProvider not found`);
+                    cachedService = container.get(this.serviceKey);
+                }
+                return cachedService;
+            }
+        };
     }
 }
 
 /** Inject a service from DIContainer into a ViewModel property */
-export function inject<T>(key: ServiceKey<T>): IPropertyTransformerFactory<never, T> & { _requiredContext: Context<unknown> } {
+export function inject<T>(key: ServiceKey<T>): IPropertyTransformerFactory<T | undefined, T> & { _requiredContext: Context<unknown> } {
     return new InjectTransformerFactory(key);
 }
