@@ -3,12 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "description": "Observable utilities for VS Code",
-  "workspaces": [
-    "observables",
-    "observables-react",
-    "example-observables-react"
-  ],
   "scripts": {
+    "preinstall": "node -e \"if (!process.env.npm_config_user_agent?.startsWith('pnpm')) { console.warn('\\x1b[33m⚠ Warning: Please use pnpm instead of npm/yarn. Run: pnpm install\\x1b[0m'); process.exit(1); }\"",
     "build": "npm run build --workspaces --if-present",
     "dev": "concurrently \"npm run dev -w observables\" \"npm run dev -w observables-react\" \"npm run dev -w example-observables-react\"",
     "clean": "npm run clean --workspaces --if-present",

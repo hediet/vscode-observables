@@ -1,0 +1,4 @@
+packages:
+  - observables
+  - observables-react
+  - example-observables-react
