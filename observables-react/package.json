@@ -2,7 +2,7 @@
     "name": "@vscode/observables-react",
     "description": "React bindings for VS Code observables",
     "authors": "Microsoft",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "type": "module",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
