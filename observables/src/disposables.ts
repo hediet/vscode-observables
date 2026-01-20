@@ -2,10 +2,6 @@ export interface IDisposable {
     dispose(): void;
 }
 
-export namespace IDisposable {
-    export const x = 1;
-}
-
 export class DisposableStore implements IDisposable {
     private disposables: IDisposable[] = [];
     private _isDisposed = false;
@@ -70,53 +66,3 @@ export abstract class Disposable implements IDisposable {
         return t;
     }
 }
-
-export class RefCounted<T extends IDisposable> {
-    public static of<T extends IDisposable>(value: T, additional?: IDisposable): RefCounted<T> {
-        return new RefCounted(value, false, additional);
-    }
-
-    /**
-     * A weak reference does not keep the value alive.
-     */
-    public static ofWeak<T extends IDisposable>(value: T, additional?: IDisposable): RefCounted<T> {
-        return new RefCounted(value, true, additional);
-    }
-
-    private _counter: number;
-
-    private constructor(public readonly value: T, weakRef: boolean, private readonly _additional?: IDisposable) {
-        this._counter = weakRef ? 0 : 1;
-    }
-
-    dispose(): void {
-        this._counter = this._counter - 1;
-        if (this._counter <= 0) {
-            this._additional?.dispose();
-            this.value.dispose();
-        }
-    }
-
-    clone(): RefCounted<T> {
-        this._counter++;
-        return this;
-    }
-}
-
-export interface IDisposable {
-    dispose(): void;
-}
-
-/*
-export class RefCounted<T extends IDisposable> {
-    constructor(private readonly value: T) {
-
-    }
-
-    createReference(): IReference<T> {
-    }
-}
-
-interface IReference<T> extends IDisposable {
-    readonly value: T;
-}*/

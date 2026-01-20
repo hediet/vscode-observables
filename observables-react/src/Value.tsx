@@ -6,6 +6,7 @@ import { view } from "./view";
 /**
  * A component that renders an observable ReactNode value.
  * Re-renders when the observable changes.
+ * Usage: <Value value={myObservable} />
  */
 export const Value = view({ value: prop.obs<ReactNode>() }, (reader, props) => {
     return props.value.read(reader);
