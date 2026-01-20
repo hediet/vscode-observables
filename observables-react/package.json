@@ -37,7 +37,6 @@
         "@vscode/observables": "*"
     },
     "devDependencies": {
-        "@vscode/observables": "workspace:*",
         "@playwright/test": "^1.40.0",
         "@rollup/plugin-node-resolve": "^16.0.3",
         "@rollup/plugin-terser": "^0.4.4",
