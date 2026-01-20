@@ -22,6 +22,7 @@
         "dist"
     ],
     "scripts": {
+        "prepare": "npm run build",
         "build": "rollup -c",
         "dev": "rollup -c -w",
         "clean": "rimraf dist",
