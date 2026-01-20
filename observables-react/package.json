@@ -31,14 +31,13 @@
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:debug": "playwright test --debug"
     },
-    "dependencies": {
-        "@vscode/observables": "workspace:*"
-    },
     "peerDependencies": {
         "react": "^18.0.0",
-        "react-dom": "^18.0.0"
+        "react-dom": "^18.0.0",
+        "@vscode/observables": "*"
     },
     "devDependencies": {
+        "@vscode/observables": "workspace:*",
         "@playwright/test": "^1.40.0",
         "@rollup/plugin-node-resolve": "^16.0.3",
         "@rollup/plugin-terser": "^0.4.4",
