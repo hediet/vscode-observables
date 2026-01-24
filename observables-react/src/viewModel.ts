@@ -50,7 +50,9 @@ export function getOrCreateViewModelContext<T>(
  * Creates a ViewModel class with typed props.
  * Use this as a base class for your ViewModels.
  */
-export function ViewModel<T extends PropsDesc>(props: T): ViewModelClass<T> {
+export function ViewModel(): ViewModelClass<{}>;
+export function ViewModel<T extends PropsDesc>(props: T): ViewModelClass<T>;
+export function ViewModel<T extends PropsDesc>(props: T = {} as T): ViewModelClass<T> {
     return class extends BaseViewModel<PropsOut<T>> {
         static _props = props;
     } as ViewModelClass<T>;

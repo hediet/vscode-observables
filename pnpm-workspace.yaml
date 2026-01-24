@@ -2,3 +2,4 @@ packages:
   - observables
   - observables-react
   - example-observables-react
+  - codeblock-extractor

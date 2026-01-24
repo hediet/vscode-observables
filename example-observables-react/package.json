@@ -12,8 +12,8 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@vscode/observables": "*",
-        "@vscode/observables-react": "*",
+        "@vscode/observables": "workspace:*",
+        "@vscode/observables-react": "workspace:*",
         "react": "^18.2.0",
         "react-dom": "^18.2.0"
     },

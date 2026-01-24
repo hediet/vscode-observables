@@ -1,0 +1,19 @@
+{
+  "extends": "../../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@vscode/observables": ["../../node_modules/@vscode/observables/dist/index.d.ts"],
+      "@vscode/observables-react": ["../../dist/index.d.ts"]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "*.playwright-spec.tsx"
+  ]
+}

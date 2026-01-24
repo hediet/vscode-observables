@@ -13,6 +13,11 @@
             "import": "./dist/index.js",
             "default": "./dist/index.js"
         },
+        "./internal": {
+            "types": "./dist/internal.d.ts",
+            "import": "./dist/internal.js",
+            "default": "./dist/internal.js"
+        },
         "./min": {
             "import": "./dist/index.min.js",
             "default": "./dist/index.min.js"
@@ -27,6 +32,7 @@
         "dev": "rollup -c -w",
         "clean": "rimraf dist",
         "typecheck": "tsc --noEmit",
+        "typecheck:examples": "tsc -p readme-codeblock-examples/tsconfig.json",
         "test:e2e": "playwright test",
         "test:e2e:ui": "playwright test --ui",
         "test:e2e:debug": "playwright test --debug"

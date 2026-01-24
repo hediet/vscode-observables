@@ -11,7 +11,12 @@ export interface ServiceKey<T> {
     readonly name: string;
 }
 
-export function createServiceKey<T>(name: string): ServiceKey<T> {
+/** Create a service key with a string name */
+export function createServiceKey<T>(name: string): ServiceKey<T>;
+/** Create a service key from a class constructor (uses class name) */
+export function createServiceKey<T>(ctor: new (...args: never[]) => T): ServiceKey<T>;
+export function createServiceKey<T>(nameOrCtor: string | (new (...args: never[]) => T)): ServiceKey<T> {
+    const name = typeof nameOrCtor === 'string' ? nameOrCtor : nameOrCtor.name;
     return { _brand: undefined as T, id: Symbol(name), name };
 }
 

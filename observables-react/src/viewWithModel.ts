@@ -37,7 +37,16 @@ function collectRequiredContexts(propsDesc: PropsDesc): Context<unknown>[] {
     return contexts;
 }
 
-// Overload 1: ViewModel-based classes with _props
+// Overload 1: ViewModel-based classes with _props, no additional props
+export function viewWithModel<
+    TModelProps extends PropsDesc,
+    TModel extends BaseViewModel<PropsOut<TModelProps>>
+>(
+    viewModelCtor: (new (arg: PropsOut<TModelProps>) => TModel) & { _props: TModelProps; [ViewModelContextSymbol]?: Context<unknown> },
+    render: (reader: IReader, model: TModel) => React.ReactNode,
+): React.ComponentType<WithOptionalInjected<TModelProps>>;
+
+// Overload 2: ViewModel-based classes with _props and additional props
 export function viewWithModel<
     TModelProps extends PropsDesc,
     TProps extends PropsDesc,
@@ -48,7 +57,15 @@ export function viewWithModel<
     render: (reader: IReader, model: TModel, props: PropsOut<TProps>) => React.ReactNode,
 ): React.ComponentType<WithOptionalInjected<TModelProps> & WithOptionalInjected<TProps>>;
 
-// Overload 2: Simple classes without _props
+// Overload 3: Simple classes without _props, no additional props
+export function viewWithModel<
+    TModel extends IDisposable
+>(
+    viewModelCtor: new () => TModel,
+    render: (reader: IReader, model: TModel) => React.ReactNode,
+): React.ComponentType<{}>;
+
+// Overload 4: Simple classes without _props, with additional props
 export function viewWithModel<
     TProps extends PropsDesc,
     TModel extends IDisposable
@@ -60,9 +77,12 @@ export function viewWithModel<
 
 export function viewWithModel(
     viewModelCtor: any,
-    props: any,
-    render: any,
+    propsOrRender: any,
+    maybeRender?: any,
 ): any {
+    const props = typeof propsOrRender === 'function' ? {} : propsOrRender;
+    const render = typeof propsOrRender === 'function' ? propsOrRender : maybeRender;
+    
     const modelPropsDesc = '_props' in viewModelCtor ? viewModelCtor._props : {};
     const requiredContexts = collectRequiredContexts({ ...modelPropsDesc, ...props });
     
