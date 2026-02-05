@@ -1,5 +1,6 @@
 import { createContext, useContext, ReactNode, Context } from "react";
 import { IPropertyTransformerFactory, IReadableObj, Readable } from "./IPropertyTransformer";
+import { derived } from "@vscode/observables";
 
 // =============================================================================
 // Service Key
@@ -81,23 +82,21 @@ class InjectTransformerFactory<T> implements IPropertyTransformerFactory<T | und
     create(readable: Readable<T | undefined>, contextValue: unknown): IReadableObj<T> {
         const container = contextValue as DIContainer | null;
         let cachedService: T | undefined;
-        
-        return {
-            read: (reader) => {
-                // Check if an explicit value was provided as a prop
-                const explicitValue = readable(reader);
-                if (explicitValue !== undefined) {
-                    return explicitValue;
-                }
-                
-                // Otherwise, use DI container (cached)
-                if (cachedService === undefined) {
-                    if (!container) throw new Error(`inject(${this.serviceKey.name}): DIProvider not found`);
-                    cachedService = container.get(this.serviceKey);
-                }
-                return cachedService;
+
+        return derived(reader => {
+            // Check if an explicit value was provided as a prop
+            const explicitValue = readable(reader);
+            if (explicitValue !== undefined) {
+                return explicitValue;
             }
-        };
+
+            // Otherwise, use DI container (cached)
+            if (cachedService === undefined) {
+                if (!container) throw new Error(`inject(${this.serviceKey.name}): DIProvider not found`);
+                cachedService = container.get(this.serviceKey);
+            }
+            return cachedService;
+        });
     }
 }
 
