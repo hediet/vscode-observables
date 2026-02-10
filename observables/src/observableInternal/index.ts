@@ -29,6 +29,7 @@ export { asyncTransaction, globalTransaction, subtransaction, transaction, Trans
 export { observableFromValueWithChangeEvent, ValueWithChangeEventFromObservable } from './utils/valueWithChangeEvent';
 export { runOnChange, runOnChangeWithCancellationToken, runOnChangeWithStore, type RemoveUndefined } from './utils/runOnChange';
 export { derivedConstOnceDefined, latestChangedValue } from './experimental/utils';
+export { deferUnobserve  } from './experimental/deferUnobserve';
 export { observableFromEvent } from './observables/observableFromEvent';
 export { observableValue } from './observables/observableValue';
 
