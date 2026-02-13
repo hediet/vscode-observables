@@ -64,7 +64,8 @@ export interface ILocation {
 	id: string;
 }
 
-function parseLine(stackLine: string): ILocation | undefined {
+function parseLine(stackLine: string | undefined): ILocation | undefined {
+	if (!stackLine) { return undefined; }
 	const match = stackLine.match(/\((.*):(\d+):(\d+)\)/);
 	if (match) {
 		return {
