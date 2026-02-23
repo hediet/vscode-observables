@@ -294,6 +294,15 @@ function styled(
 }
 
 export function formatValue(value: unknown, availableLen: number): string {
+	try {
+		return formatValueUnsafe(value, availableLen);
+	} catch {
+		// Value could not be formatted (e.g., a Proxy that throws on coercion)
+		return '[[???]]';
+	}
+}
+
+function formatValueUnsafe(value: unknown, availableLen: number): string {
 	switch (typeof value) {
 		case 'number':
 			return '' + value;
@@ -343,19 +352,32 @@ function formatArray(value: unknown[], availableLen: number): string {
 }
 
 function formatObject(value: object, availableLen: number): string {
-	if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
-		const val = value.toString();
-		if (val.length <= availableLen) {
-			return val;
+	// Avoid drilling into Proxies - wrap operations that could trigger traps
+	try {
+		if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
+			const val = value.toString();
+			if (val.length <= availableLen) {
+				return val;
+			}
+			return val.substring(0, availableLen - 3) + '...';
 		}
-		return val.substring(0, availableLen - 3) + '...';
+	} catch {
+		// toString triggered a Proxy trap or threw - bail out
+		return '[[Object]]';
 	}
 
 	const className = getClassName(value);
 
 	let result = className ? className + '(' : '{ ';
 	let first = true;
-	for (const [key, val] of Object.entries(value)) {
+	let entries: [string, unknown][];
+	try {
+		entries = Object.entries(value);
+	} catch {
+		// Object.entries triggered a Proxy trap - bail out
+		return className ? `${className}(...)` : '[[Object]]';
+	}
+	for (const [key, val] of entries) {
 		if (!first) {
 			result += ', ';
 		}

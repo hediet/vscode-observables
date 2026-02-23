@@ -39,9 +39,9 @@ export { DebugLocation } from './debugLocation';
 
 import { addLogger, setLogObservableFn } from './logging/logging';
 import { ConsoleObservableLogger, logObservableToConsole } from './logging/consoleObservableLogger';
-import { DevToolsLogger } from './logging/debugger/devToolsLogger';
 import { _setDebugGetDependencyGraph } from './observables/baseObservable';
 import { debugGetDependencyGraph } from './logging/debugGetDependencyGraph';
+import { DevToolsLogger } from './logging/debugger/devToolsLogger';
 
 _setDebugGetDependencyGraph(debugGetDependencyGraph);
 setLogObservableFn(logObservableToConsole);
@@ -56,5 +56,7 @@ if (enableLogging) {
 }
 
 
-// To debug observables you also need the extension "ms-vscode.debug-value-editor"
-addLogger(DevToolsLogger.getInstance());
+if (enableLogging) {
+	// To debug observables you also need the extension "ms-vscode.debug-value-editor"
+	addLogger(DevToolsLogger.getInstance());
+}
