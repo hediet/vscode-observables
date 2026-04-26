@@ -11,6 +11,14 @@ import { DebugNameData } from '../debugName';
 import { getLogger } from '../logging/logging';
 import { DebugLocation } from '../debugLocation';
 
+export function toDebugNameData(nameOrOwner: string | object): DebugNameData {
+	if (typeof nameOrOwner === 'string') {
+		return new DebugNameData(undefined, nameOrOwner, undefined);
+	}	else {
+		return new DebugNameData(nameOrOwner, undefined, undefined);
+	}
+}
+
 /**
  * Creates an observable value.
  * Observers get informed when the value changes.
@@ -21,12 +29,7 @@ import { DebugLocation } from '../debugLocation';
 export function observableValue<T, TChange = void>(name: string, initialValue: T, debugLocation?: DebugLocation): ISettableObservable<T, TChange>;
 export function observableValue<T, TChange = void>(owner: object, initialValue: T, debugLocation?: DebugLocation): ISettableObservable<T, TChange>;
 export function observableValue<T, TChange = void>(nameOrOwner: string | object, initialValue: T, debugLocation = DebugLocation.ofCaller()): ISettableObservable<T, TChange> {
-	let debugNameData: DebugNameData;
-	if (typeof nameOrOwner === 'string') {
-		debugNameData = new DebugNameData(undefined, nameOrOwner, undefined);
-	} else {
-		debugNameData = new DebugNameData(nameOrOwner, undefined, undefined);
-	}
+	const debugNameData = toDebugNameData(nameOrOwner);
 	return new ObservableValue(debugNameData, initialValue, strictEquals, debugLocation);
 }
 

@@ -5,8 +5,10 @@
 
 import { IObservable, IObservableWithChange, IObserver, IReader } from '../base';
 import { IDisposable } from '../commonFacade/deps';
+import { DebugNameData } from '../debugName';
 import { getLogger } from '../logging/logging';
 import { DebugLocation } from '../debugLocation';
+import { _getDebugHelperClass, type IDebugHelper } from '../observables/baseObservable';
 
 export class ManualChangesHandler implements IObserver {
 	private _changes: IObservable<any>[] = [];
@@ -46,19 +48,23 @@ export class ManualObserver implements IReader, IDisposable {
 	private _disposed = false;
 
 	readonly debugName: string;
+	readonly _debugNameData: DebugNameData;
+	readonly _runFn: Function | undefined;
 
 	constructor(
-		private readonly _run: (reader: IReader) => void,
+		private readonly _run: () => void,
 		debugName?: string,
 		debugLocation: DebugLocation = DebugLocation.ofCaller(),
 	) {
 		this.debugName = debugName ?? '(anonymous ManualObserver)';
+		this._debugNameData = new DebugNameData(undefined, this.debugName, undefined);
+		this._runFn = _run;
 		this._handler = new ManualChangesHandler(() => {
 			if (!this._disposed) {
-				this._run(this);
+				this._run();
 			}
 		});
-		getLogger()?.handleAutorunCreated(this._handler as any, debugLocation);
+		getLogger()?.handleAutorunCreated(this, debugLocation);
 	}
 
 	get reader(): IReader {
@@ -76,6 +82,10 @@ export class ManualObserver implements IReader, IDisposable {
 		return this._dependencies;
 	}
 
+	get debug(): IDebugHelper {
+		return new (_getDebugHelperClass())(this);
+	}
+
 	dispose(): void {
 		if (this._disposed) { return; }
 		this._disposed = true;
@@ -83,6 +93,6 @@ export class ManualObserver implements IReader, IDisposable {
 			dep.removeObserver(this._handler);
 		}
 		this._dependencies.clear();
-		getLogger()?.handleAutorunDisposed(this._handler as any);
+		getLogger()?.handleAutorunDisposed(this);
 	}
 }

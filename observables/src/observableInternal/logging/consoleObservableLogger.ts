@@ -5,7 +5,7 @@
 
 import { IObservable } from '../base';
 import { TransactionImpl } from '../transaction';
-import { IObservableLogger, IChangeInformation, addLogger } from './logging';
+import { IObservableLogger, IChangeInformation, IAutorunObserverLike, addLogger } from './logging';
 import { FromEventObservable } from '../observables/observableFromEvent';
 import { getClassName } from '../debugName';
 import { Derived } from '../observables/derivedImpl';
@@ -170,22 +170,22 @@ export class ConsoleObservableLogger implements IObservableLogger {
 		]));
 	}
 
-	handleAutorunCreated(autorun: AutorunObserver): void {
+	handleAutorunCreated(autorun: IAutorunObserverLike): void {
 		if (!this._isIncluded(autorun)) { return; }
 
 		this.changedObservablesSets.set(autorun, new Set());
 	}
 
-	handleAutorunDisposed(autorun: AutorunObserver): void {
+	handleAutorunDisposed(autorun: IAutorunObserverLike): void {
 	}
 
-	handleAutorunDependencyChanged(autorun: AutorunObserver, observable: IObservable<any>, change: unknown): void {
+	handleAutorunDependencyChanged(autorun: IAutorunObserverLike, observable: IObservable<any>, change: unknown): void {
 		if (!this._isIncluded(autorun)) { return; }
 
 		this.changedObservablesSets.get(autorun)!.add(observable);
 	}
 
-	handleAutorunStarted(autorun: AutorunObserver): void {
+	handleAutorunStarted(autorun: IAutorunObserverLike): void {
 		const changedObservables = this.changedObservablesSets.get(autorun);
 		if (!changedObservables) { return; }
 
@@ -201,7 +201,7 @@ export class ConsoleObservableLogger implements IObservableLogger {
 		this.indentation++;
 	}
 
-	handleAutorunFinished(autorun: AutorunObserver): void {
+	handleAutorunFinished(autorun: IAutorunObserverLike): void {
 		this.indentation--;
 	}
 

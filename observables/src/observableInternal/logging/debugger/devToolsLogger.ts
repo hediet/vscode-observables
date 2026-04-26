@@ -5,7 +5,7 @@
 
 import { AutorunObserver, AutorunState } from '../../reactions/autorunImpl';
 import { TransactionImpl } from '../../transaction';
-import { IChangeInformation, IObservableLogger } from '../logging';
+import { IChangeInformation, IAutorunObserverLike, IObservableLogger } from '../logging';
 import { formatValue } from '../consoleObservableLogger';
 import { ObsDebuggerApi, IObsDeclaration, ObsInstanceId, ObsStateUpdate, ITransactionState, ObserverInstanceState } from './debuggerApi';
 import { registerDebugChannel } from './debuggerRpc';
@@ -49,7 +49,7 @@ export class DevToolsLogger implements IObservableLogger {
 
 	private readonly _declarations = new Map</* declarationId + type */string, IObsDeclaration>();
 	private readonly _instanceInfos = new WeakMap<object, IObservableInfo | IAutorunInfo>();
-	private readonly _aliveInstances = new Map<ObsInstanceId, IObservable<any> | AutorunObserver>();
+	private readonly _aliveInstances = new Map<ObsInstanceId, IObservable<any> | IAutorunObserverLike>();
 	private readonly _activeTransactions = new Set<TransactionImpl>();
 
 	private readonly _channel = registerDebugChannel<ObsDebuggerApi>('observableDevTools', () => {
@@ -196,7 +196,7 @@ export class DevToolsLogger implements IObservableLogger {
 		return info as IObservableInfo;
 	}
 
-	private _getAutorunInfo(autorun: AutorunObserver): IAutorunInfo | undefined {
+	private _getAutorunInfo(autorun: IAutorunObserverLike): IAutorunInfo | undefined {
 		const info = this._instanceInfos.get(autorun);
 		if (!info) {
 			onUnexpectedError(new BugIndicatingError('No info found'));
@@ -382,7 +382,7 @@ export class DevToolsLogger implements IObservableLogger {
 		}
 	}
 
-	handleAutorunCreated(autorun: AutorunObserver, location: DebugLocation): void {
+	handleAutorunCreated(autorun: IAutorunObserverLike, location: DebugLocation): void {
 		const declarationId = this._getDeclarationId('autorun', location);
 		const info: IAutorunInfo = {
 			declarationId,
@@ -406,7 +406,7 @@ export class DevToolsLogger implements IObservableLogger {
 			});
 		}
 	}
-	handleAutorunDisposed(autorun: AutorunObserver): void {
+	handleAutorunDisposed(autorun: IAutorunObserverLike): void {
 		const info = this._getAutorunInfo(autorun);
 		if (!info) { return; }
 
@@ -416,16 +416,16 @@ export class DevToolsLogger implements IObservableLogger {
 		this._instanceInfos.delete(autorun);
 		this._aliveInstances.delete(info.instanceId);
 	}
-	handleAutorunDependencyChanged(autorun: AutorunObserver, observable: IObservable<any>, change: unknown): void {
+	handleAutorunDependencyChanged(autorun: IAutorunObserverLike, observable: IObservable<any>, change: unknown): void {
 		const info = this._getAutorunInfo(autorun);
 		if (!info) { return; }
 
 		info.changedObservables.add(observable);
 	}
-	handleAutorunStarted(autorun: AutorunObserver): void {
+	handleAutorunStarted(autorun: IAutorunObserverLike): void {
 
 	}
-	handleAutorunFinished(autorun: AutorunObserver): void {
+	handleAutorunFinished(autorun: IAutorunObserverLike): void {
 		const info = this._getAutorunInfo(autorun);
 		if (!info) { return; }
 

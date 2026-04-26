@@ -8,6 +8,13 @@ import { IObservable } from '../base';
 import { TransactionImpl } from '../transaction';
 import type { Derived } from '../observables/derivedImpl';
 import { DebugLocation } from '../debugLocation';
+import type { DebugNameData } from '../debugName';
+
+export interface IAutorunObserverLike {
+	readonly debugName: string;
+	readonly _debugNameData: DebugNameData;
+	readonly _runFn?: Function;
+}
 
 let globalObservableLogger: IObservableLogger | undefined;
 
@@ -50,11 +57,11 @@ export interface IObservableLogger {
 
 	handleObservableUpdated(observable: IObservable<any>, info: IChangeInformation): void;
 
-	handleAutorunCreated(autorun: AutorunObserver, location: DebugLocation): void;
-	handleAutorunDisposed(autorun: AutorunObserver): void;
-	handleAutorunDependencyChanged(autorun: AutorunObserver, observable: IObservable<any>, change: unknown): void;
-	handleAutorunStarted(autorun: AutorunObserver): void;
-	handleAutorunFinished(autorun: AutorunObserver): void;
+	handleAutorunCreated(autorun: IAutorunObserverLike, location: DebugLocation): void;
+	handleAutorunDisposed(autorun: IAutorunObserverLike): void;
+	handleAutorunDependencyChanged(autorun: IAutorunObserverLike, observable: IObservable<any>, change: unknown): void;
+	handleAutorunStarted(autorun: IAutorunObserverLike): void;
+	handleAutorunFinished(autorun: IAutorunObserverLike): void;
 
 	handleDerivedDependencyChanged(derived: Derived<any, any, any>, observable: IObservable<any>, change: unknown): void;
 	handleDerivedCleared(observable: Derived<any, any, any>): void;
@@ -83,27 +90,27 @@ class ComposedLogger implements IObservableLogger {
 			logger.handleObservableUpdated(observable, info);
 		}
 	}
-	handleAutorunCreated(autorun: AutorunObserver, location: DebugLocation): void {
+	handleAutorunCreated(autorun: IAutorunObserverLike, location: DebugLocation): void {
 		for (const logger of this.loggers) {
 			logger.handleAutorunCreated(autorun, location);
 		}
 	}
-	handleAutorunDisposed(autorun: AutorunObserver): void {
+	handleAutorunDisposed(autorun: IAutorunObserverLike): void {
 		for (const logger of this.loggers) {
 			logger.handleAutorunDisposed(autorun);
 		}
 	}
-	handleAutorunDependencyChanged(autorun: AutorunObserver, observable: IObservable<any>, change: unknown): void {
+	handleAutorunDependencyChanged(autorun: IAutorunObserverLike, observable: IObservable<any>, change: unknown): void {
 		for (const logger of this.loggers) {
 			logger.handleAutorunDependencyChanged(autorun, observable, change);
 		}
 	}
-	handleAutorunStarted(autorun: AutorunObserver): void {
+	handleAutorunStarted(autorun: IAutorunObserverLike): void {
 		for (const logger of this.loggers) {
 			logger.handleAutorunStarted(autorun);
 		}
 	}
-	handleAutorunFinished(autorun: AutorunObserver): void {
+	handleAutorunFinished(autorun: IAutorunObserverLike): void {
 		for (const logger of this.loggers) {
 			logger.handleAutorunFinished(autorun);
 		}

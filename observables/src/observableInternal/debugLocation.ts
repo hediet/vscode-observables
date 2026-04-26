@@ -13,7 +13,8 @@ export namespace DebugLocation {
 	}
 
 	export function ofCaller(): DebugLocation {
-		return ofNthCaller(1);
+		const result = ofNthCaller(2);
+		return result;
 	}
 
 	export function ofNthCaller(n: number): DebugLocation {
@@ -23,7 +24,7 @@ export namespace DebugLocation {
 		const Err = Error as any as { stackTraceLimit: number }; // For the monaco editor checks, which don't have the nodejs types.
 
 		const l = Err.stackTraceLimit;
-		Err.stackTraceLimit = 3;
+		Err.stackTraceLimit = 4;
 		const stack = new Error().stack!;
 		Err.stackTraceLimit = l;
 

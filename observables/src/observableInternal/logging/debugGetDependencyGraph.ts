@@ -4,156 +4,253 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { IObservable, IObserver } from '../base';
+import { type IDebugHelper, type IGraphInfo } from '../observables/baseObservable';
 import { Derived } from '../observables/derivedImpl';
 import { FromEventObservable } from '../observables/observableFromEvent';
 import { ObservableValue } from '../observables/observableValue';
 import { AutorunObserver } from '../reactions/autorunImpl';
+import { ManualObserver } from '../experimental/manualObserver';
 import { formatValue } from './consoleObservableLogger';
 
-interface IOptions {
-	type: 'dependencies' | 'observers';
-	debugNamePostProcessor?: (name: string) => string;
+type GraphNode = IObservable<any> | IObserver | ManualObserver;
+
+// ---------------------------------------------------------------------------
+// GraphInfo — the result of graph traversal, separated from rendering
+// ---------------------------------------------------------------------------
+
+export class GraphInfo implements IGraphInfo {
+	constructor(
+		readonly name: string,
+		readonly type: string,
+		readonly value: unknown,
+		readonly state: string,
+		readonly children: readonly GraphInfo[],
+	) { }
 }
 
-export function debugGetObservableGraph(obs: IObservable<any> | IObserver, options: IOptions): string {
-	const debugNamePostProcessor = options?.debugNamePostProcessor ?? ((str: string) => str);
-	const info = Info.from(obs, debugNamePostProcessor);
-	if (!info) {
-		return '';
-	}
+// ---------------------------------------------------------------------------
+// Graph building — resolves the observable/observer graph into GraphInfo
+// ---------------------------------------------------------------------------
 
-	const alreadyListed = new Set<IObservable<any> | IObserver>();
-
-	if (options.type === 'observers') {
-		return formatObservableInfoWithObservers(info, 0, alreadyListed, options).trim();
-	} else {
-		return formatObservableInfoWithDependencies(info, 0, alreadyListed, options).trim();
-	}
+interface IBuildGraphOptions {
+	readonly type: 'dependencies' | 'observers';
+	readonly debugNamePostProcessor?: (name: string) => string;
 }
 
-function formatObservableInfoWithDependencies(info: Info, indentLevel: number, alreadyListed: Set<IObservable<any> | IObserver>, options: IOptions): string {
+function buildGraph(obs: GraphNode, options: IBuildGraphOptions): GraphInfo | undefined {
+	const debugNamePostProcessor = options.debugNamePostProcessor ?? ((s: string) => s);
+	const visited = new Map<GraphNode, GraphInfo>();
+
+	function build(node: GraphNode): GraphInfo {
+		const existing = visited.get(node);
+		if (existing) { return existing; }
+
+		const info = RawInfo.from(node, debugNamePostProcessor) ?? RawInfo.unknown(node);
+		const children = options.type === 'observers' ? info.observers : info.dependencies;
+
+		const graphInfo = new GraphInfo(info.name, info.type, info.value, info.state, []);
+		visited.set(info.sourceObj, graphInfo);
+
+		(graphInfo.children as GraphInfo[]).push(...children.map(build));
+		return graphInfo;
+	}
+
+	const root = RawInfo.from(obs, debugNamePostProcessor);
+	if (!root) { return undefined; }
+	return build(obs);
+}
+
+// ---------------------------------------------------------------------------
+// Text backend
+// ---------------------------------------------------------------------------
+
+function formatAsText(graph: GraphInfo): string {
+	const visited = new Set<GraphInfo>();
+	return formatNodeAsText(graph, 0, visited).trim();
+}
+
+function formatNodeAsText(node: GraphInfo, indentLevel: number, visited: Set<GraphInfo>): string {
 	const indent = '\t\t'.repeat(indentLevel);
 	const lines: string[] = [];
 
-	const isAlreadyListed = alreadyListed.has(info.sourceObj);
-	if (isAlreadyListed) {
-		lines.push(`${indent}* ${info.type} ${info.name} (already listed)`);
+	if (visited.has(node)) {
+		lines.push(`${indent}* ${node.type} ${node.name} (already listed)`);
 		return lines.join('\n');
 	}
+	visited.add(node);
 
-	alreadyListed.add(info.sourceObj);
+	lines.push(`${indent}* ${node.type} ${node.name}:`);
+	lines.push(`${indent}  value: ${formatValue(node.value, 50)}`);
+	lines.push(`${indent}  state: ${node.state}`);
 
-	lines.push(`${indent}* ${info.type} ${info.name}:`);
-	lines.push(`${indent}  value: ${formatValue(info.value, 50)}`);
-	lines.push(`${indent}  state: ${info.state}`);
-
-	if (info.dependencies.length > 0) {
-		lines.push(`${indent}  dependencies:`);
-		for (const dep of info.dependencies) {
-			const info = Info.from(dep, options.debugNamePostProcessor ?? (name => name)) ?? Info.unknown(dep);
-			lines.push(formatObservableInfoWithDependencies(info, indentLevel + 1, alreadyListed, options));
+	if (node.children.length > 0) {
+		lines.push(`${indent}  children:`);
+		for (const child of node.children) {
+			lines.push(formatNodeAsText(child, indentLevel + 1, visited));
 		}
 	}
 
 	return lines.join('\n');
 }
 
-function formatObservableInfoWithObservers(info: Info, indentLevel: number, alreadyListed: Set<IObservable<any> | IObserver>, options: IOptions): string {
-	const indent = '\t\t'.repeat(indentLevel);
-	const lines: string[] = [];
+// ---------------------------------------------------------------------------
+// Mermaid backend
+// ---------------------------------------------------------------------------
 
-	const isAlreadyListed = alreadyListed.has(info.sourceObj);
-	if (isAlreadyListed) {
-		lines.push(`${indent}* ${info.type} ${info.name} (already listed)`);
-		return lines.join('\n');
-	}
+function formatAsMermaid(graph: GraphInfo): string {
+	const nodeIds = new Map<GraphInfo, string>();
+	let nextId = 0;
+	const getNodeId = (node: GraphInfo): string => {
+		let id = nodeIds.get(node);
+		if (!id) {
+			id = `n${nextId++}`;
+			nodeIds.set(node, id);
+		}
+		return id;
+	};
 
-	alreadyListed.add(info.sourceObj);
+	const lines: string[] = ['graph TD'];
+	const visited = new Set<GraphInfo>();
+	const escape = (s: string) => s.replace(/"/g, '#quot;');
 
-	lines.push(`${indent}* ${info.type} ${info.name}:`);
-	lines.push(`${indent}  value: ${formatValue(info.value, 50)}`);
-	lines.push(`${indent}  state: ${info.state}`);
+	function visit(node: GraphInfo): void {
+		if (visited.has(node)) { return; }
+		visited.add(node);
 
-	if (info.observers.length > 0) {
-		lines.push(`${indent}  observers:`);
-		for (const observer of info.observers) {
-			const info = Info.from(observer, options.debugNamePostProcessor ?? (name => name)) ?? Info.unknown(observer);
-			lines.push(formatObservableInfoWithObservers(info, indentLevel + 1, alreadyListed, options));
+		const id = getNodeId(node);
+		const label = `${node.type}: ${node.name}\\nstate: ${node.state}${node.value !== undefined ? `\\nvalue: ${formatValue(node.value, 30)}` : ''}`;
+		lines.push(`    ${id}["${escape(label)}"]`);
+
+		for (const child of node.children) {
+			lines.push(`    ${id} --> ${getNodeId(child)}`);
+			visit(child);
 		}
 	}
 
+	visit(graph);
 	return lines.join('\n');
 }
 
-class Info {
-	public static from(obs: IObservable<any> | IObserver, debugNamePostProcessor: (name: string) => string): Info | undefined {
+// ---------------------------------------------------------------------------
+// Graphviz DOT backend
+// ---------------------------------------------------------------------------
+
+function formatAsGraphviz(graph: GraphInfo): string {
+	const nodeIds = new Map<GraphInfo, string>();
+	let nextId = 0;
+	const getNodeId = (node: GraphInfo): string => {
+		let id = nodeIds.get(node);
+		if (!id) {
+			id = `n${nextId++}`;
+			nodeIds.set(node, id);
+		}
+		return id;
+	};
+
+	const lines: string[] = ['digraph {'];
+	const visited = new Set<GraphInfo>();
+	const escape = (s: string) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+
+	function visit(node: GraphInfo): void {
+		if (visited.has(node)) { return; }
+		visited.add(node);
+
+		const id = getNodeId(node);
+		const label = `${node.type}: ${node.name}\nstate: ${node.state}${node.value !== undefined ? `\nvalue: ${formatValue(node.value, 30)}` : ''}`;
+		lines.push(`    ${id} [label="${escape(label)}"]`);
+
+		for (const child of node.children) {
+			lines.push(`    ${id} -> ${getNodeId(child)}`);
+			visit(child);
+		}
+	}
+
+	visit(graph);
+	lines.push('}');
+	return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// DebugHelper — the public API for .debug on observables and observers
+// ---------------------------------------------------------------------------
+
+export class DebugHelper implements IDebugHelper {
+	constructor(private readonly _node: object) { }
+
+	buildDependencyGraph(): GraphInfo | undefined {
+		return buildGraph(this._node as GraphNode, { type: 'dependencies' });
+	}
+
+	buildObserverGraph(): GraphInfo | undefined {
+		return buildGraph(this._node as GraphNode, { type: 'observers' });
+	}
+
+	getDependencyGraph(): string {
+		const graph = this.buildDependencyGraph();
+		return graph ? formatAsText(graph) : '';
+	}
+
+	getObserverGraph(): string {
+		const graph = this.buildObserverGraph();
+		return graph ? formatAsText(graph) : '';
+	}
+
+	getDependencyMermaid(): string {
+		const graph = this.buildDependencyGraph();
+		return graph ? formatAsMermaid(graph) : '';
+	}
+
+	getObserverMermaid(): string {
+		const graph = this.buildObserverGraph();
+		return graph ? formatAsMermaid(graph) : '';
+	}
+
+	getDependencyGraphviz(): string {
+		const graph = this.buildDependencyGraph();
+		return graph ? formatAsGraphviz(graph) : '';
+	}
+
+	getObserverGraphviz(): string {
+		const graph = this.buildObserverGraph();
+		return graph ? formatAsGraphviz(graph) : '';
+	}
+}
+
+// ---------------------------------------------------------------------------
+// RawInfo — internal: extracts metadata from concrete observable/observer types
+// ---------------------------------------------------------------------------
+
+class RawInfo {
+	static from(obs: GraphNode, debugNamePostProcessor: (name: string) => string): RawInfo | undefined {
 		if (obs instanceof AutorunObserver) {
 			const state = obs.debugGetState();
-			return new Info(
-				obs,
-				debugNamePostProcessor(obs.debugName),
-				'autorun',
-				undefined,
-				state.stateStr,
-				Array.from(state.dependencies),
-				[]
-			);
+			return new RawInfo(obs, debugNamePostProcessor(obs.debugName), 'autorun', undefined, state.stateStr, Array.from(state.dependencies), []);
+		} else if (obs instanceof ManualObserver) {
+			return new RawInfo(obs, debugNamePostProcessor(obs.debugName), 'manualObserver', undefined, 'active', Array.from(obs.getDependencies()), []);
 		} else if (obs instanceof Derived) {
 			const state = obs.debugGetState();
-			return new Info(
-				obs,
-				debugNamePostProcessor(obs.debugName),
-				'derived',
-				state.value,
-				state.stateStr,
-				Array.from(state.dependencies),
-				Array.from(obs.debugGetObservers())
-			);
+			return new RawInfo(obs, debugNamePostProcessor(obs.debugName), 'derived', state.value, state.stateStr, Array.from(state.dependencies), Array.from(obs.debugGetObservers()));
 		} else if (obs instanceof ObservableValue) {
 			const state = obs.debugGetState();
-			return new Info(
-				obs,
-				debugNamePostProcessor(obs.debugName),
-				'observableValue',
-				state.value,
-				'upToDate',
-				[],
-				Array.from(obs.debugGetObservers())
-			);
+			return new RawInfo(obs, debugNamePostProcessor(obs.debugName), 'observableValue', state.value, 'upToDate', [], Array.from(obs.debugGetObservers()));
 		} else if (obs instanceof FromEventObservable) {
 			const state = obs.debugGetState();
-			return new Info(
-				obs,
-				debugNamePostProcessor(obs.debugName),
-				'fromEvent',
-				state.value,
-				state.hasValue ? 'upToDate' : 'initial',
-				[],
-				Array.from(obs.debugGetObservers())
-			);
+			return new RawInfo(obs, debugNamePostProcessor(obs.debugName), 'fromEvent', state.value, state.hasValue ? 'upToDate' : 'initial', [], Array.from(obs.debugGetObservers()));
 		}
 		return undefined;
 	}
 
-	public static unknown(obs: IObservable<any> | IObserver): Info {
-		return new Info(
-			obs,
-			'(unknown)',
-			'unknown',
-			undefined,
-			'unknown',
-			[],
-			[]
-		);
+	static unknown(obs: GraphNode): RawInfo {
+		return new RawInfo(obs, '(unknown)', 'unknown', undefined, 'unknown', [], []);
 	}
 
 	constructor(
-		public readonly sourceObj: IObservable<any> | IObserver,
-		public readonly name: string,
-		public readonly type: string,
-		public readonly value: any,
-		public readonly state: string,
-		public readonly dependencies: (IObservable<any> | IObserver)[],
-		public readonly observers: (IObservable<any> | IObserver)[],
+		readonly sourceObj: GraphNode,
+		readonly name: string,
+		readonly type: string,
+		readonly value: unknown,
+		readonly state: string,
+		readonly dependencies: GraphNode[],
+		readonly observers: GraphNode[],
 	) { }
 }
